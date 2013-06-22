@@ -11,6 +11,7 @@ module Gemrat
 
     include Gemrat
     include Messages
+    require 'pry'
 
     def initialize(*args)
       with_error_handling { parse_arguments(*args) }
@@ -28,7 +29,7 @@ module Gemrat
         end
       end
 
-      run_bundle unless gems.nil? || gems.empty? || gems.select(&:valid?).empty?
+      #run_bundle unless gems.nil? || gems.empty? || gems.select(&:valid?).empty?
     end
 
     attr_accessor :gem
@@ -40,7 +41,8 @@ module Gemrat
       def parse_arguments(*args)
         Arguments.new(*args).tap do |a|
           self.gems      = a.gem_names.map {|name| Gem.new(name) }
-          self.gemfile   = a.gemfile
+          self.gemfile   = a.options.gemfile
+          binding.pry
         end
       end
 
@@ -89,9 +91,9 @@ module Gemrat
         puts "#{gem.name} added to your Gemfile.".green
       end
 
-      def run_bundle
-        puts "Bundling...".green
-        `bundle`
-      end
+      #def run_bundle
+        #puts "Bundling...".green
+        #`bundle`
+      #end
   end
 end

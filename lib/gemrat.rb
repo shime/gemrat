@@ -3,6 +3,8 @@ require "gemrat/messages"
 require "gemrat/runner"
 require "gemrat/arguments"
 require "colored"
+require 'ostruct'
+require 'optparse'
 
 module Gemrat
   class GemNotFound < StandardError; end
