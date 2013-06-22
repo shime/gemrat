@@ -1,78 +1,58 @@
 module Gemrat
   class Arguments
 
-    ATTRIBUTES = [:gem_names, :gemfile, :options]
+    ATTRIBUTES = [:gem_names, :options]
 
     ATTRIBUTES.each { |arg| attr_accessor arg }
 
 
     def initialize(*args)
-      #self.options = OpenStruct.new # Set in place for future OptionParser
-      # implementation
       self.arguments = *args
-
-      validate
-
-      parse_options
-      #extract_options
-    end
-
-    def gem_names
-      arguments.take_while { |arg| arg !~ /^-|^--/}
+      self.options = OpenStruct.new(parse_options)
+      self.gem_names = arguments.take_while { |arg| arg !~ /^-|^--/}
+      binding.pry
     end
 
     private
 
       attr_accessor :arguments
 
-      def validate
-        raise ArgumentError if invalid?
-      end
-
       def parse_options
-        self.options = OpenStruct.new
-        set_defaults
+        options = {}
 
         opt_parser = OptionParser.new do |opt|
-          opt.on("-g GEMFILE", "--gemfile GEMFILE", "Specify the gemfile to be used") do |gemfile|
-            binding.pry
-            self.options.gemfile = gemfile
+          opt.banner = "Usage: opt_parser COMMAND [OPTIONS]"
+          opt.separator  ""
+          opt.separator  "Commands"
+          opt.separator  "     start: start server"
+          opt.separator  "     stop: stop server"
+          opt.separator  "     restart: restart server"
+          opt.separator  ""
+          opt.separator  "Options"
+
+          opt.on("-g", "--gemfile GEMFILE", "Specify the gemfile to be used") do |gemfile|
+            options[:gemfile] = gemfile
           end
 
           opt.on("--no-version", "Add to gemfile without specifying\
                  the latest gem version.") do
-            self.options.no_version = true
+            options[:no_version] = true
           end
 
           opt.on("--version VERSION", "Specify gem version to be installed") do |version|
-            self.options.version = version
+            options[:version] = version
           end
 
-          opt.on("-e", "--environment x,y", Array, "Specify environment in which to place gems") do |env|
-            self.options.environment = env
+          opt.on("-e", "--environment ENVIRONMENTS", Array, "Specify environment(s) in which to place gems") do |env|
+            options[:environment] = env
           end
-        end
-        opt_parser.parse!
-        self.gem_names = ARGV
-      end
 
-      def set_defaults
-        self.options.no_version = false
-        self.options.no_install = false
-        self.options.gemfile = "Gemfile"
-      end
+          opt.on("-h","--help","Print this usage") do
+            puts opt_parser
+          end
+        end.parse!
 
-      def invalid?
-        gem_names.empty? || gem_names.first =~ /-h|--help/ || gem_names.first.nil?
-      end
-
-      def extract_options
-        options  = arguments - gem_names
-        opts     = Hash[*options]
-
-        self.gemfile  = opts.delete("-g") || opts.delete("--gemfile") || "Gemfile"
-      rescue ArgumentError
-        # unable to extract options, leave them nil
+        options
       end
   end
 end

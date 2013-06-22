@@ -41,7 +41,7 @@ describe Gemrat do
       context "when valid arguments are given" do
         context "for one gem" do
           it "adds lastest gem version to gemfile" do
-            output  = capture_stdout { subject.run("sinatra", "-g", "TestGemfile") }
+            output  = capture_stdout { system("bundle exec gemrat sinatra -g TestGemfile") }
             output.should include("'sinatra', '1.4.3' added to your Gemfile")
             gemfile_contents = File.open('TestGemfile', 'r').read
             gemfile_contents.should include("\ngem 'sinatra', '1.4.3'")

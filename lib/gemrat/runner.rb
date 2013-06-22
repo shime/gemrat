@@ -14,7 +14,7 @@ module Gemrat
     require 'pry'
 
     def initialize(*args)
-      with_error_handling { parse_arguments(*args) }
+      parse_arguments(*args)
     end
 
     def run
@@ -29,7 +29,7 @@ module Gemrat
         end
       end
 
-      #run_bundle unless gems.nil? || gems.empty? || gems.select(&:valid?).empty?
+      run_bundle unless gems.nil? || gems.empty? || gems.select(&:valid?).empty?
     end
 
     attr_accessor :gem
@@ -42,14 +42,11 @@ module Gemrat
         Arguments.new(*args).tap do |a|
           self.gems      = a.gem_names.map {|name| Gem.new(name) }
           self.gemfile   = a.options.gemfile
-          binding.pry
         end
       end
 
       def with_error_handling
         yield
-      rescue ArgumentError
-        puts Messages::USAGE
       rescue GemNotFound
         puts Messages::GEM_NOT_FOUND.red % gem.name
         gem.invalid!
@@ -91,9 +88,17 @@ module Gemrat
         puts "#{gem.name} added to your Gemfile.".green
       end
 
-      #def run_bundle
-        #puts "Bundling...".green
-        #`bundle`
-      #end
+      def run_bundle
+        puts "Bundling...".green
+        `bundle`
+      end
+
+
+      def stubbed_response(*args)
+        File.read("./spec/resources/rubygems_response_shim_for_#{gem.name}")
+      rescue Errno::ENOENT
+        ""
+      end
+      alias_method :fetch_all, :stubbed_response
   end
 end
