@@ -2,7 +2,7 @@ module Gemrat
   class Arguments
     class UnableToParse < StandardError; end
 
-    ATTRIBUTES = [:gems, :gemfile]
+    ATTRIBUTES = [:gems, :gemfile, :options]
 
     ATTRIBUTES.each { |arg| attr_accessor arg }
 
@@ -12,7 +12,8 @@ module Gemrat
 
       validate
 
-      extract_options
+      parse_options
+      #extract_options
     end
 
 
@@ -30,6 +31,20 @@ module Gemrat
 
       def validate
         raise UnableToParse if invalid?
+      end
+
+      def parse_options
+        self.options = OpenStruct.new
+
+        options.gemfile = "Gemfile"
+
+        OptionParser.new do |opts|
+          opts.on("-g", "--gemfile GEMFILE", "Specify the Gemfile to be used. Defaults to 'Gemfile'") do |gemfile|
+            options.gemfile = gemfile
+          end
+        end.parse!
+
+        self.gemfile = Gemfile.new(options.gemfile)
       end
 
       def invalid?

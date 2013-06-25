@@ -4,6 +4,8 @@ require "gemrat/runner"
 require "gemrat/arguments"
 require "gemrat/gem"
 require "gemrat/gemfile"
+require "optparse"
+require "ostruct"
 
 require "colored"
 
