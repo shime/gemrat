@@ -14,6 +14,7 @@ module Gemrat
 
       parse_options
       #extract_options
+      gem_names
     end
 
 
@@ -42,7 +43,7 @@ module Gemrat
           opts.on("-g", "--gemfile GEMFILE", "Specify the Gemfile to be used. Defaults to 'Gemfile'") do |gemfile|
             options.gemfile = gemfile
           end
-        end.parse!
+        end.parse!(arguments)
 
         self.gemfile = Gemfile.new(options.gemfile)
       end
